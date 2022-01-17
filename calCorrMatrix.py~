@@ -1,0 +1,132 @@
+import gc
+import sys
+import ROOT
+import scipy.linalg as la
+import numpy as np
+from random import seed
+from random import random
+from random import gauss
+import root_numpy
+from root_numpy import random_sample, array2tree, array2root
+import uproot3
+from numpy import inf
+from numpy.random import seed
+from numpy.random import randn
+
+# gc.enable()
+# gc.collect()
+### saving layer, u,v information
+# events = uproot3.open("./luv_tree.root")["Eventtree"]
+# layer = events.array("layer")
+# u=events.array("U")
+# v=events.array("V")
+# typee= events.array("type")
+                                                                                                                                                                          
+layer=[]
+u=[]
+v=[]
+typee=[]
+nCells=[]
+nHalfHgcrocs=[]
+nMaxWords=[]
+data = np.loadtxt("./fit_function_parameters_n10_updatedntuples_v2.txt")
+for im in range(4851):
+    layer.append(int(data[im][1]))
+    u.append(int(data[im][2]))
+    v.append(int(data[im][3]))
+    typee.append(int(data[im][4]))
+    nCells.append(int(data[im][5]))
+    nHalfHgcrocs.append(int(data[im][6]))
+    nMaxWords.append(int(data[im][7]))
+
+Events1=uproot3.open("./Arraytotree_n10_unmaksed_newtuple.root")["EventTree"]
+Events2=uproot3.open("./Arraytotree_n20_unmaksed_newtuple.root")["EventTree"]
+Events3=uproot3.open("./Arraytotree_n10_unmaksed_newtuple.root")["EventTree"]
+
+mycache = {}
+orig_modules_arrays=np.empty((14553,119700),dtype='int32')
+# orig_modules_arrays_n20=np.empty((5066,60000),dtype='int32')
+# orig_modules_arrays_n30=np.empty((5066,60000),dtype='int32')
+count=0
+count1=0
+count2=0
+count3=0
+count4=0
+for ib in range(0,14553,3):
+        name='%i_%i_%i_%i' %(layer[count],typee[count],u[count],v[count])
+        a=Events1.lazyarray("Module_%s" %name,cache= mycache)
+        count+=1
+        # if(np.std(np.array(a))==0):
+            # print(name)
+            # a=randn(119700)
+        #     print(np.std(a))
+        #     count1+=1
+        # # if(np.std(np.array(a))==0):
+        # #     seed(count)   
+        # #     a=randn(60000)
+        # # else:
+        # #     a=Events1.lazyarray("Module_%s" %name,cache= mycache)
+            
+        b=Events2.lazyarray("Module_%s" %name,cache= mycache)
+        if(np.std(np.array(b))==0):
+            print(name)
+            b=randn(119700)
+
+        c=Events3.lazyarray("Module_%s" %name,cache= mycache)
+        
+        # count+=1
+        # #print(name)
+        
+        # if(np.std(np.array(a))==0):# and np.std(np.array(b))!=0 and np.std(np.array(c))!=0):
+        #         count1+=1
+        #         seed(ib)
+        #         orig_modules_arrays[ib]=randn(119700)
+        #         print(name)
+        #         #print(np.std(orig_modules_arrays[ib]))
+        #         orig_modules_arrays[ib+1]=b
+        #         orig_modules_arrays[ib+2]=c
+
+        # elif(np.std(np.array(b))==0):# and np.std(np.array(a))!=0 and np.std(np.array(c))!=0):
+        #         count1+=1
+        #         seed(ib+1)
+        #         print(name)
+        #         orig_modules_arrays[ib]=a
+        #         orig_modules_arrays[ib+1]=randn(119700)
+        #         orig_modules_arrays[ib+2]=c
+        # elif(np.std(np.array(c))==0):# and np.std(np.array(a))!=0 and np.std(np.array(b))!=0):
+        #         count1+=1
+        #         seed(ib+2)
+        #         print(name)
+        #         orig_modules_arrays[ib]=a
+        #         orig_modules_arrays[ib+1]=b
+        #         orig_modules_arrays[ib+2]=randn(119700)
+        
+        # else:
+                
+        orig_modules_arrays[ib]=a
+        orig_modules_arrays[ib+1]=b
+        orig_modules_arrays[ib+2]=c
+        # # orig_modules_arrays[ib] = np.where(orig_modules_arrays[ib]==1065353216, 0, orig_modules_arrays[ib])
+        # # orig_modules_arrays[ib+1] = np.where(orig_modules_arrays[ib+1]==1065353216, 0, orig_modules_arrays[ib+1])
+        # # orig_modules_arrays[ib+2] = np.where(orig_modules_arrays[ib+2]==1065353216, 0, orig_modules_arrays[ib+2])
+        # # if(np.std(orig_modules_arrays[ib])==0 or np.std(orig_modules_arrays[ib+1])==0 or np.std(orig_modules_arrays[ib+2])==0):
+        # #     print(name)
+        
+print(count1)
+# print(count, count1, count2, count3)
+# print(count4)
+# print(orig_modules_arrays.shape)
+corr1 = np.cov(orig_modules_arrays)
+print(np.linalg.eig(corr1))
+# # # #print(corr1.shape)
+# corr1[corr1 == -inf] = 0.1
+# corr1[corr1<=0]= 0.01
+# corr1[~np.isfinite(corr1)] = 0.1
+
+#corr1[np.linalg.eig(corr1)<0]=abs(np.linalg.eig(corr1))
+#L= np.linalg.cholesky(
+#L=la.cholesky(corr1, lower=True)
+
+# print(corr1)
+# print(L)
+#np.savetxt("v1_correlationMatrix_15kby15k_LatestNtuples.txt",L)

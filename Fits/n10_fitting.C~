@@ -7,7 +7,7 @@
 using namespace std;
   
 
-void n20_fitting(string root_file_name,string map_file)
+void n10_fitting(string root_file_name,string map_file)
 {
   char* title= new char[200];
   //char* hname = new char[200];
@@ -27,12 +27,12 @@ void n20_fitting(string root_file_name,string map_file)
   char* new_release = new char[50];
   char* hist = new char[200];
   
-  // TFile* f = new TFile("data_per_elink_nt_EOL_correct.root","Recreate");
-  // TH1F* data_per_elink = new TH1F("data_per_elink","average econ data per elink",5066,0,5066);
-  // TH1F* Transformed_data_per_elink = new TH1F("Transformed_data_per_elink",";;transformed / original",5066,0,5066);
-  // TH1F* ratio_plot = new TH1F("ratio_plot","Pessimistics",5066,0,5066);
-  // ratio_plot->GetXaxis()->SetTitle("Econ-d's");
-  // ratio_plot->GetYaxis()->SetTitle("transformed/original");
+  TFile* f = new TFile("data_per_elink_nt_EOL_correct.root","Recreate");
+  TH1F* data_per_elink = new TH1F("data_per_elink","average econ data per elink",5066,0,5066);
+  TH1F* Transformed_data_per_elink = new TH1F("Transformed_data_per_elink",";;transformed / original",5066,0,5066);
+  TH1F* ratio_plot = new TH1F("ratio_plot","Pessimistics",5066,0,5066);
+  ratio_plot->GetXaxis()->SetTitle("Econ-d's");
+  ratio_plot->GetYaxis()->SetTitle("transformed/original");
   
   char* hname = new char[2000];
   char* hname1 = new char[2000];
@@ -45,7 +45,7 @@ void n20_fitting(string root_file_name,string map_file)
   
   sprintf(hname,"%s",root_file_name.c_str());
   //  sprintf(hname0,"/home/alpana/work/HGCAL_BE_TDAQ/ECON_data/%s",root_file_name1.c_str());
-  sprintf(path2,"Results/n20/v1");//,root_file_name.c_str());
+  sprintf(path2,"Results/n10/v1");//,root_file_name.c_str());
   //  sprintf(path2,"subset_fitting/",root_file_name.c_str());
   
   TFile * inputfile = new TFile(hname,"READ");
@@ -54,7 +54,7 @@ void n20_fitting(string root_file_name,string map_file)
   sprintf(hname1,"%s",map_file.c_str());
 
   std::ofstream file;
-  file.open("fit_function_parameters_n20_updatedntuples_v2.txt",ios::out);
+  file.open("fit_function_parameters_n10_updatedntuples_v2.txt",ios::out);
 
   std::fstream mapping_file;
   mapping_file.open(hname1,ios::in);
@@ -157,18 +157,10 @@ void n20_fitting(string root_file_name,string map_file)
       
       //      sprintf(path2,"example_fits/layers/Layer_%02d",map_vec[iModule].layer,root_file_name.c_str());
       if(map_vec[iModule].nDaqLpgbt==0) continue;
-      
       //      else continue;
-      sprintf(hist_name,"orig_hits_20_%d_%d_%d_%d",map_vec[iModule].layer,map_vec[iModule].type,map_vec[iModule].u,map_vec[iModule].v);
-       TH1F *resp = (TH1F*)inputfile->Get(hist_name);
-       //if(hist_name!="orig_hits_20_2_1_8_9") continue;
-       if(resp->GetMean()==0.0)
-	 {
-	   
-	   file<<iModule<<"\t"<<map_vec[iModule].layer<<"\t"<<map_vec[iModule].u<<"\t"<<map_vec[iModule].v<<"\t"<<map_vec[iModule].type<<"\t"<<0<<"\t"<<0<< "\t"<<0<<"\t"<<0<<"\t"<<0<<"\t"<<0<<"\t"<<0<<"\t"<<0<<"\n";
-	   continue;
-	 }
-       //       if((map_vec[iModule].layer==40 && map_vec[iModule].u ==2 && map_vec[iModule].v==7 )) {
+      sprintf(hist_name,"orig_hits_10_%d_%d_%d_%d",map_vec[iModule].layer,map_vec[iModule].type,map_vec[iModule].u,map_vec[iModule].v);
+      // if (map_vec[iModule].layer ==44 && map_vec[iModule].u ==15 && map_vec[iModule].v==4)
+      // 	{
       if(map_vec[iModule].u<=5 && map_vec[iModule].v<=5)
       	{
  	  if(map_vec[iModule].layer<=6){
@@ -458,14 +450,41 @@ void n20_fitting(string root_file_name,string map_file)
  	      resp2->SetMarkerColor(kRed);
  	      resp2->SetLineWidth(2);
  	      TF1* func = new TF1("fit_func","([0]*TMath::Gaus(x,[1],[2])) + [3]*TMath::Poisson(x,[4])+[5]*TMath::Landau(x,[6],[7])");
- 	      func->SetParameter(0,1000); // set starting values
- 	      func-> SetParameter(1,resp2->GetMean()); // set starting values
+	      if((map_vec[iModule].layer==39 && map_vec[iModule].u==3 && map_vec[iModule].v==2) ||(map_vec[iModule].layer==39 && map_vec[iModule].u==2 && map_vec[iModule].v==3))
+		{
+		  func->SetParameter(0,1000);
+              func-> SetParameter(1,0.8*resp2->GetMean());	
+              func->SetParameter(2,resp2->GetRMS());
+              func->SetParameter(3,300000);
+              func->SetParameter(4,resp2->GetMean());
+              func->SetParameter(5,10000);
+              func->SetParameter(6,resp2->GetMean());
+              func->SetParameter(7,resp2->GetRMS());
+
+		}
+	      else if ((map_vec[iModule].layer==40 && map_vec[iModule].u==3 && map_vec[iModule].v==4) || (map_vec[iModule].layer==40 && map_vec[iModule].u==2 && map_vec[iModule].v==4))
+	      {
+func->SetParameter(0,1000);
+              func-> SetParameter(1,0.8*resp2->GetMean());
+              func->SetParameter(2,resp2->GetRMS());
+              func->SetParameter(3,300000);
+              func->SetParameter(4,resp2->GetMean());
+              func->SetParameter(5,10000);
+              func->SetParameter(6,resp2->GetMean());
+              func->SetParameter(7,resp2->GetRMS());
+
+	      }
+	      else
+		{
+ 	      func->SetParameter(0,1000); 
+ 	      func-> SetParameter(1,resp2->GetMean()); 
  	      func->SetParameter(2,resp2->GetRMS()+2);
  	      func->SetParameter(3,30000);
  	      func->SetParameter(4,resp2->GetMean());
  	      func->SetParameter(5,10000);
  	      func->SetParameter(6,resp2->GetMean()-2);
  	      func->SetParameter(7,resp2->GetRMS()+2);
+		}
  	      func->SetParNames("Constant1","Mean_G","Sigma_G","Constant2","Mean_P","Constant3","Mean_L","Sigma_L");
 	      
  	      //float r1 = resp2->GetMean()- 4*resp2->GetRMS();
@@ -663,21 +682,7 @@ void n20_fitting(string root_file_name,string map_file)
       	      resp2->SetMarkerColor(kRed);
       	      resp2->SetLineWidth(2);
       	      TF1* func = new TF1("fit_func","([0]*TMath::Gaus(x,[1],[2])) + [3]*TMath::Poisson(x,[4])+[5]*TMath::Landau(x,[6],[7])");
-      	      //TF1* func = new TF1("fit_func","([0]*TMath::Gaus(x,[1],[2])) + [3]*TMath::Poisson(x,[4])+[5]*TMath::GammaDist(x,[6],0,1)");
-	      if(map_vec[iModule].layer==5 && map_vec[iModule].u ==8 && map_vec[iModule].v==8)
-                {
-		   func->SetParameter(0,2500); // set starting values                                                                                               
-              func-> SetParameter(1,resp2->GetMean()); // set starting values                                                                                        
-              func->SetParameter(2,resp2->GetRMS());
-              func->SetParameter(3,10000);
-              func->SetParameter(4,resp2->GetMean());
-              func->SetParameter(5,2000);
-              func->SetParameter(6,0.1*resp2->GetMean());//-0.5*resp2->GetMean());                                                                                        
-              func->SetParameter(7,resp2->GetRMS());
-
-		}
-	      else
-		{
+      	      //TF1* func = new TF1("fit_func","([0]*TMath::Gaus(x,[1],[2])) + [3]*TMath::Poisson(x,[4])+[5]*TMath::GammaDist(x,[6],0,1)");    
       	      func->SetParameter(0,2500); // set starting values
       	      func-> SetParameter(1,resp2->GetMean()); // set starting values
       	      func->SetParameter(2,resp2->GetRMS());
@@ -687,7 +692,6 @@ void n20_fitting(string root_file_name,string map_file)
       	      func->SetParameter(6,resp2->GetMean());//-0.5*resp2->GetMean());
       	      //func->SetParameter(6,resp2->GetMean());
       	      func->SetParameter(7,resp2->GetRMS());
-		}
       	      func->SetParNames("Constant1","Mean_G","Sigma_G","Constant2","Mean_P","Constant3","Mean_L","Sigma_L");
       	      float r1 = resp2->GetMean()- 4*resp2->GetRMS();
       	      float r2 = resp2->GetMean()+4*resp2->GetRMS();
@@ -813,35 +817,6 @@ void n20_fitting(string root_file_name,string map_file)
               resp2->SetMarkerColor(kRed);
               resp2->SetLineWidth(2);
               TF1* func = new TF1("fit_func","([0]*TMath::Gaus(x,[1],[2])) + [3]*TMath::Poisson(x,[4])+[5]*TMath::Landau(x,[6],[7])");
-	      if((map_vec[iModule].layer==33 && map_vec[iModule].u ==7 && map_vec[iModule].v==8 ))// || (map_vec[iModule].layer==40 && map_vec[iModule].u ==8 && map_vec[iModule].v==7 ))
-		 {
-		   func->SetParameter(0,2500); // set starting values                                                                                                    
-		   func-> SetParameter(1,resp2->GetMean()-2); // set starting values \
-                                                                                                                                                                      
-              func->SetParameter(2,resp2->GetRMS());
-              func->SetParameter(3,10000);
-              func->SetParameter(4,resp2->GetMean());
-              func->SetParameter(5,2000);
-              func->SetParameter(6,0.5*resp2->GetMean());//-0.5*resp2->GetMean());                                                                                       \
-                                                                                                                                                                      
-              func->SetParameter(7,0.5*resp2->GetRMS());
-	       }
-
-	       else if ((map_vec[iModule].layer==40 && map_vec[iModule].u ==8 && map_vec[iModule].v==7 ))
-		 {
-		   func->SetParameter(0,250);                                                                                                         
-                   func-> SetParameter(1,0.5*resp2->GetMean()); 
-              func->SetParameter(2,resp2->GetRMS());
-              func->SetParameter(3,10000);
-              func->SetParameter(4,resp2->GetMean());
-              func->SetParameter(5,20000);
-              func->SetParameter(6,0.5*resp2->GetMean());                                                                                   
-              func->SetParameter(7,0.05*resp2->GetRMS());
-
-		 }
-	      
-	       else
-		 {
               func->SetParameter(0,2500); // set starting values                                                                                                                                           
               func-> SetParameter(1,resp2->GetMean()-2); // set starting values                                                                                                                              
               func->SetParameter(2,resp2->GetRMS());
@@ -850,7 +825,6 @@ void n20_fitting(string root_file_name,string map_file)
               func->SetParameter(5,2000);
               func->SetParameter(6,resp2->GetMean());//-0.5*resp2->GetMean());                                                                                                                          
               func->SetParameter(7,resp2->GetRMS());
-		 }
               func->SetParNames("Constant1","Mean_G","Sigma_G","Constant2","Mean_P","Constant3","Mean_L","Sigma_L");
               float r1 = resp2->GetMean()- 4*resp2->GetRMS();
               float r2 = resp2->GetMean()+4*resp2->GetRMS();
@@ -912,7 +886,7 @@ void n20_fitting(string root_file_name,string map_file)
       	      resp2->SetLineWidth(2);
 	      
       	      TF1* func = new TF1("fit_func","([0]*TMath::Gaus(x,[1],[2])) + [3]*TMath::Poisson(x,[4])+[5]*TMath::Landau(x,[6],[7])");
-	      func->SetParameter(0,40000); // set starting values
+      	      func->SetParameter(0,40000); // set starting values
       	      func-> SetParameter(1,resp2->GetMean()); // set starting values
       	      func->SetParameter(2,resp2->GetRMS());
       	      func->SetParameter(3,10000);
@@ -921,7 +895,7 @@ void n20_fitting(string root_file_name,string map_file)
       	      func->SetParameter(6,resp2->GetMean());//-0.5*resp2->GetMean());
       	      //func->SetParameter(6,resp2->GetMean());
       	      func->SetParameter(7,resp2->GetRMS());
-	  func->SetParNames("Constant1","Mean_G","Sigma_G","Constant2","Mean_P","Constant3","Mean_L","Sigma_L");
+      	      func->SetParNames("Constant1","Mean_G","Sigma_G","Constant2","Mean_P","Constant3","Mean_L","Sigma_L");
       	      float r1 = resp2->GetMean()- 4*resp2->GetRMS();
       	      float r2 = resp2->GetMean()+4*resp2->GetRMS();
 	      
@@ -981,8 +955,6 @@ void n20_fitting(string root_file_name,string map_file)
       	      resp2->SetLineWidth(2);
 
       	      TF1* func = new TF1("fit_func","([0]*TMath::Gaus(x,[1],[2])) + [3]*TMath::Poisson(x,[4])+[5]*TMath::Landau(x,[6],[7])");
-	      
-		  
       	      func->SetParameter(0,100000); // set starting values
       	      func-> SetParameter(1,resp2->GetMean()); // set starting values
       	      func->SetParameter(2,resp2->GetRMS());
@@ -1057,32 +1029,6 @@ void n20_fitting(string root_file_name,string map_file)
 	      resp2->SetLineWidth(2);
 	      
 	      TF1* func = new TF1("fit_func","([0]*TMath::Gaus(x,[1],[2])) + [3]*TMath::Poisson(x,[4])+[5]*TMath::Landau(x,[6],[7])");
-	      if((map_vec[iModule].layer==2 && map_vec[iModule].u ==8 && map_vec[iModule].v==9))//||(map_vec[iModule].layer==2 && map_vec[iModule].u ==10 && map_vec[iModule].v==5))
-		{
-		    func->SetParameter(0,2000); // set starting values                                                                                
-              func-> SetParameter(1,0.1*resp2->GetMean()); // set starting values                                                                                        
-              func->SetParameter(2,resp2->GetRMS());
-              func->SetParameter(3,10000);
-              func->SetParameter(4,resp2->GetMean());
-              func->SetParameter(5,5000);
-              func->SetParameter(6,0.5*resp2->GetMean());//-0.5*resp2->GetMean());                                                                                       
-              func->SetParameter(7,resp2->GetRMS());
-
-		}
-		// else if (map_vec[iModule].layer==2 && map_vec[iModule].u ==10 && map_vec[iModule].v==5)
-	      // 	  {
-	      // 	         func->SetParameter(0,2000); // set starting values                                                                             
-              // func-> SetParameter(1,0.1*resp2->GetMean()); // set starting values                                                                                   
-              // func->SetParameter(2,resp2->GetRMS());
-              // func->SetParameter(3,10000);
-              // func->SetParameter(4,resp2->GetMean());
-              // func->SetParameter(5,5000);
-              // func->SetParameter(6,0.5*resp2->GetMean());//-0.5*resp2->GetMean());                                                                                   
-              // func->SetParameter(7,resp2->GetRMS());
-
-	      // 	  }
-	      else
-		{
 	      func->SetParameter(0,2000); // set starting values
 	      func-> SetParameter(1,resp2->GetMean()); // set starting values
 	      func->SetParameter(2,resp2->GetRMS());
@@ -1090,8 +1036,8 @@ void n20_fitting(string root_file_name,string map_file)
 	      func->SetParameter(4,resp2->GetMean());
 	      func->SetParameter(5,5000);
 	      func->SetParameter(6,resp2->GetMean());//-0.5*resp2->GetMean());
+	      //func->SetParameter(6,resp2->GetMean());
 	      func->SetParameter(7,resp2->GetRMS());
-		}
 	      func->SetParNames("Constant1","Mean_G","Sigma_G","Constant2","Mean_P","Constant3","Mean_L","Sigma_L");
 	      float r1 = resp2->GetMean()- 4*resp2->GetRMS();
 	      float r2 = resp2->GetMean()+4*resp2->GetRMS();
@@ -1151,28 +1097,14 @@ void n20_fitting(string root_file_name,string map_file)
               resp2->SetLineWidth(2);
 
               TF1* func = new TF1("fit_func","([0]*TMath::Gaus(x,[1],[2])) + [3]*TMath::Poisson(x,[4])+[5]*TMath::Landau(x,[6],[7])");
-	      if((map_vec[iModule].layer==18 && map_vec[iModule].u ==9 && map_vec[iModule].v==5) ||( map_vec[iModule].layer==18 && map_vec[iModule].u ==4 && map_vec[iModule].v ==9 ))
-		{
-		   func->SetParameter(0,1000);
-		   func-> SetParameter(1,resp2->GetMean());
-		   func->SetParameter(2,resp2->GetRMS());
-		   func->SetParameter(3,10000); func->SetParameter(4,resp2->GetMean());
-		   func->SetParameter(5,5000);
-		   func->SetParameter(6,0.1*resp2->GetMean());
-		    func->SetParameter(7,0.1*resp2->GetRMS());
-		}
-	      else
-		{
               func->SetParameter(0,1000); // set starting values                                                                                                                                          
               func-> SetParameter(1,resp2->GetMean()); // set starting values                                                                                                                             
               func->SetParameter(2,resp2->GetRMS()-1);
               func->SetParameter(3,10000);
               func->SetParameter(4,resp2->GetMean());
               func->SetParameter(5,5000);
-              func->SetParameter(6,resp2->GetMean()-2);//-0.5*resp2->GetMean());
-	      
+              func->SetParameter(6,resp2->GetMean()-2);//-0.5*resp2->GetMean());                                                                                                                         
               func->SetParameter(7,resp2->GetRMS()-1);
-		}
               func->SetParNames("Constant1","Mean_G","Sigma_G","Constant2","Mean_P","Constant3","Mean_L","Sigma_L");
               float r1 = resp2->GetMean()- 4*resp2->GetRMS();
               float r2 = resp2->GetMean()+4*resp2->GetRMS();
@@ -1229,31 +1161,6 @@ void n20_fitting(string root_file_name,string map_file)
               resp2->SetLineWidth(2);
 
               TF1* func = new TF1("fit_func","([0]*TMath::Gaus(x,[1],[2])) + [3]*TMath::Poisson(x,[4])+[5]*TMath::Landau(x,[6],[7])");
-	      if((map_vec[iModule].layer==24 && map_vec[iModule].u ==10&& map_vec[iModule].v==5)||(map_vec[iModule].layer==25 && map_vec[iModule].u ==9 && map_vec[iModule].v==5))// || (map_vec[iModule].layer==25 && map_vec[iModule].u ==9 && map_vec[iModule].v==5) )                                    
-                {
-                    func->SetParameter(0,200); // set starting values                                                                                                
-              func-> SetParameter(1,resp2->GetMean()); // s
-              func->SetParameter(2,resp2->GetRMS());
-              func->SetParameter(3,1000000);
-              func->SetParameter(4,resp2->GetMean());
-              func->SetParameter(5,5000);
-              func->SetParameter(6,0.2*resp2->GetMean());//                                                              
-              func->SetParameter(7,0.1*resp2->GetRMS());
-
-                }
-	      // else if (map_vec[iModule].layer==25 && map_vec[iModule].u ==9 && map_vec[iModule].v==5)
-	      // 	{
-	      // 	  func->SetParameter(0,20);
-	      // 	  func-> SetParameter(1,0.5*resp2->GetMean());
-	      // 	  func->SetParameter(2,0.1*resp2->GetRMS()); func->SetParameter(3,10000);
-	      // 	  func->SetParameter(4,resp2->GetMean());
-	      // 	    func->SetParameter(5,50000);
-	      // 	     func->SetParameter(6,0.5*resp2->GetMean());
-	      // 	     func->SetParameter(7,resp2->GetRMS());
-		       
-	      // 	}
-	       else
-		 {
               func->SetParameter(0,100); // set starting values                                                                                                                                          
               func-> SetParameter(1,resp2->GetMean()); // set starting values                                                                                                                             
               func->SetParameter(2,resp2->GetRMS()-2);
@@ -1262,7 +1169,6 @@ void n20_fitting(string root_file_name,string map_file)
               func->SetParameter(5,5000);
               func->SetParameter(6,resp2->GetMean()-2);//-0.5*resp2->GetMean());                                                                                                                           
               func->SetParameter(7,resp2->GetRMS());
-		 }
               func->SetParNames("Constant1","Mean_G","Sigma_G","Constant2","Mean_P","Constant3","Mean_L","Sigma_L");
               float r1 = resp2->GetMean()- 4*resp2->GetRMS();
               float r2 = resp2->GetMean()+4*resp2->GetRMS();
@@ -1320,43 +1226,18 @@ void n20_fitting(string root_file_name,string map_file)
               resp2->SetLineWidth(2);
 	      
               TF1* func = new TF1("fit_func","([0]*TMath::Gaus(x,[1],[2])) + [3]*TMath::Poisson(x,[4])+[5]*TMath::Landau(x,[6],[7])");
-	      if((map_vec[iModule].u==5 && map_vec[iModule].v ==11 && map_vec[iModule].layer==28) ||(map_vec[iModule].u==10 && map_vec[iModule].v ==7 && map_vec[iModule].layer==30)|| (map_vec[iModule].u==5 && map_vec[iModule].v ==10 && map_vec[iModule].layer==32))
+	      if(map_vec[iModule].u==5 && map_vec[iModule].v ==11 && map_vec[iModule].layer==28)
 		{
-		  func->SetParameter(0,110); // set starting values
+		  func->SetParameter(0,100); // set starting values
 		  func-> SetParameter(1,resp2->GetMean()-2); // set starting values                                                                                              
               func->SetParameter(2,resp2->GetRMS()-2);
               func->SetParameter(3,10000);
               func->SetParameter(4,resp2->GetMean());
               func->SetParameter(5,5050);
               func->SetParameter(6,resp2->GetMean());
-              func->SetParameter(7,0.5*resp2->GetRMS());
+              func->SetParameter(7,resp2->GetRMS()-2);
 
 		}
-	      else if ((map_vec[iModule].layer==26 && map_vec[iModule].u ==10 && map_vec[iModule].v==2) )//|| (map_vec[iModule].layer==34 && map_vec[iModule].u ==6 && map_vec[iModule].v==9) )
-                {
-                  func->SetParameter(0,0.01);
-                  func-> SetParameter(1,0.01*resp2->GetMean());
-                  func->SetParameter(2,0.1*resp2->GetRMS()); func->SetParameter(3,1000000);
-                  func->SetParameter(4,resp2->GetMean());
-                    func->SetParameter(5,500000);
-                     func->SetParameter(6,0.5*resp2->GetMean());
-                     func->SetParameter(7,resp2->GetRMS());
-
-                }
-	      else if(map_vec[iModule].layer==34 && map_vec[iModule].u ==6 && map_vec[iModule].v==9)
-		{
-		  func->SetParameter(0,100000);
-                  func-> SetParameter(1,0.01*resp2->GetMean());
-                  func->SetParameter(2,0.1*resp2->GetRMS());
-		  func->SetParameter(3,100000);
-                  func->SetParameter(4,0.1*resp2->GetMean());
-		  func->SetParameter(5,500);
-		  func->SetParameter(6,0.005*resp2->GetMean());
-		  func->SetParameter(7,0.001*resp2->GetRMS());
-
-		}
-	      
-
 	      else
 		{
               func->SetParameter(0,100); // set starting values                                                                                                                                            
@@ -1425,21 +1306,20 @@ void n20_fitting(string root_file_name,string map_file)
               resp2->SetLineWidth(2);
 
               TF1* func = new TF1("fit_func","([0]*TMath::Gaus(x,[1],[2])) + [3]*TMath::Poisson(x,[4])+[5]*TMath::Landau(x,[6],[7])");
-	      // if(map_vec[iModule].layer==40 && map_vec[iModule].u==8 && map_vec[iModule].v==7)
-	      // 	{
-	      // 	   func->SetParameter(0,10); // set starting values                                                                                                     \
+	      if(map_vec[iModule].layer ==44 && map_vec[iModule].u == 15 && map_vec[iModule].v ==4)
+		{
+		  func->SetParameter(0,1000); // set starting values                                                                                                
+		  func-> SetParameter(1,resp2->GetMean()); // set starting values                                                                                   
+		  func->SetParameter(2,resp2->GetRMS());
+		  func->SetParameter(3,1000000);
+		  func->SetParameter(4,resp2->GetMean());
+		  func->SetParameter(5,5000);
+		  func->SetParameter(6,0.5*resp2->GetMean());
+		  func->SetParameter(7,0.4*resp2->GetRMS());
 
-              // func-> SetParameter(1,0.5*resp2->GetMean()); // set starting values
-              // func->SetParameter(2,0.5*resp2->GetRMS());
-              // func->SetParameter(3,10000);
-              // func->SetParameter(4,resp2->GetMean());
-              // func->SetParameter(5,5000);
-              // func->SetParameter(6,resp2->GetMean()-2);
-              // func->SetParameter(7,resp2->GetRMS()-2);
-
-	      // 	}
-	      // else
-	      // 	{
+		}
+	      else
+		{
               func->SetParameter(0,1000); // set starting values                                                                                                                                            
               func-> SetParameter(1,resp2->GetMean()); // set starting values                                                                                                                             
               func->SetParameter(2,resp2->GetRMS());
@@ -1448,7 +1328,7 @@ void n20_fitting(string root_file_name,string map_file)
               func->SetParameter(5,5000);
               func->SetParameter(6,resp2->GetMean()-2);
               func->SetParameter(7,resp2->GetRMS()-2);
-	      //		}
+		}
               func->SetParNames("Constant1","Mean_G","Sigma_G","Constant2","Mean_P","Constant3","Mean_L","Sigma_L");
               float r1 = resp2->GetMean()- 4*resp2->GetRMS();
               float r2 = resp2->GetMean()+4*resp2->GetRMS();
@@ -1512,26 +1392,27 @@ void n20_fitting(string root_file_name,string map_file)
 	      	  resp2->SetLineWidth(2);
 
 	      	  TF1* func = new TF1("fit_func","([0]*TMath::Gaus(x,[1],[2])) + [3]*TMath::Poisson(x,[4])+[5]*TMath::Landau(x,[6],[7])");
-		  if(map_vec[iModule].layer==24 && map_vec[iModule].u ==3 && map_vec[iModule].v==8)
+		  if(map_vec[iModule].layer==19 && map_vec[iModule].u==1 && map_vec[iModule].v ==6)
 		    {
-		      func->SetParameter(0,10);
-		      func-> SetParameter(1,resp2->GetMean());
-		      func->SetParameter(2,resp2->GetRMS());
-		      func->SetParameter(3,10000);
-		      func->SetParameter(4,resp2->GetMean());func->SetParameter(5,10000);func->SetParameter(6,0.5*resp2->GetMean());
-		      func->SetParameter(7,0.5*resp2->GetRMS());
+		      func->SetParameter(0,100);
+                  func-> SetParameter(1,resp2->GetMean());
+                  func->SetParameter(2,resp2->GetRMS());
+                  func->SetParameter(3,10000);
+                  func->SetParameter(4,resp2->GetMean());
+                  func->SetParameter(5,5000);
+                  func->SetParameter(6,resp2->GetMean());
+                  func->SetParameter(7,resp2->GetRMS());
+
 		    }
 		  else
 		    {
-	      	  func->SetParameter(0,1000); // set starting values
-	      	  func-> SetParameter(1,resp2->GetMean()); // set starting values
+	      	  func->SetParameter(0,1000); 
+	      	  func-> SetParameter(1,resp2->GetMean()); 
 	      	  func->SetParameter(2,resp2->GetRMS());
 	      	  func->SetParameter(3,10000);
 	      	  func->SetParameter(4,resp2->GetMean());
 	      	  func->SetParameter(5,5000);
-	      	  func->SetParameter(6,resp2->GetMean());//-0.5*resp2->GetMean());
-		    
-	      	  //func->SetParameter(6,resp2->GetMean());
+	      	  func->SetParameter(6,resp2->GetMean());
 	      	  func->SetParameter(7,resp2->GetRMS());
 		    }
 	      	  func->SetParNames("Constant1","Mean_G","Sigma_G","Constant2","Mean_P","Constant3","Mean_L","Sigma_L");
@@ -1571,7 +1452,7 @@ void n20_fitting(string root_file_name,string map_file)
 	      	}
 
 	      
-	      else if(map_vec[iModule].layer>=25 &&map_vec[iModule].layer<=30)
+	 else if(map_vec[iModule].layer>=25 &&map_vec[iModule].layer<=30)
 	      	{
 	      	  if((map_vec[iModule].u<=5 &&map_vec[iModule].v==8)||(map_vec[iModule].v<=5 &&map_vec[iModule].u==8))
 	      	    {
@@ -1731,51 +1612,12 @@ void n20_fitting(string root_file_name,string map_file)
 	      	      gPad->SetLogy();
 	      	      resp2->GetXaxis()->SetTitle("number of hits");
 	      	      resp2->GetXaxis()->SetTitleSize(0.05);
-	      	      //resp2->GetXaxis()->SetLimits(0,400);	      	      resp2->SetLineColorAlpha(kRed,1);
+	      	      //resp2->GetXaxis()->SetLimits(0,400);
+	      	      resp2->SetLineColorAlpha(kRed,1);
 	      	      resp2->SetMarkerColor(kRed);
 	      	      resp2->SetLineWidth(2);
 	      	      TF1* func = new TF1("fit_func","([0]*TMath::Gaus(x,[1],[2])) + [3]*TMath::Poisson(x,[4])+[5]*TMath::Landau(x,[6],[7])");
-		      if((map_vec[iModule].layer==33 && map_vec[iModule].u ==1 && map_vec[iModule].v==7 )|| (map_vec[iModule].layer==35 && map_vec[iModule].u ==1 && map_vec[iModule].v==7 ))
-			{
-			 func->SetParameter(0,1000); // set starting values                                                                                              
-                      func-> SetParameter(1,resp2->GetMean()); // set starting values                                                                                 
-                      func->SetParameter(2,resp2->GetRMS());
-                      func->SetParameter(3,10000);
-                      func->SetParameter(4,resp2->GetMean());
-                      func->SetParameter(5,15500);
-                      func->SetParameter(6,0.5*resp2->GetMean());//-0.5*resp2->GetMean());                                                                                
-                      //func->SetParameter(6,resp2->GetMean());                                                                                                       
-                      func->SetParameter(7,0.5*resp2->GetRMS());
-
-		      }
-		      else if((map_vec[iModule].layer==34 && map_vec[iModule].u ==8 &&  map_vec[iModule].v==1 ) || (map_vec[iModule].layer==36 && map_vec[iModule].u ==8 &&  map_vec[iModule].v==3 ))
-			{
-			  func->SetParameter(0,10); // set starting values                                                                                                                                                                                                                                       
-                      func-> SetParameter(1,0.5*resp2->GetMean()); // set starting values                                                                                \
-
-		      func->SetParameter(2,resp2->GetRMS());
-                      func->SetParameter(3,10000);
-                      func->SetParameter(4,resp2->GetMean());
-                      func->SetParameter(5,15500);
-                      func->SetParameter(6,0.5*resp2->GetMean());//-0.5*resp2->GetMean());                                                                           
-		      func->SetParameter(7,0.5*resp2->GetRMS());
-			}
 		      
-		      else if((map_vec[iModule].layer==33 && map_vec[iModule].u ==2 && map_vec[iModule].v==8 ))// ||(map_vec[iModule].layer==34 && map_vec[iModule].u ==6 && map_vec[iModule].v==9 ))
-		{
-		    func->SetParameter(0,10); // set starting values                                                                                          \
-                                                                                                                                                                      
-                      func-> SetParameter(1,0.5*resp2->GetMean()); // set starting values                                                                                 
-                      func->SetParameter(2,resp2->GetRMS());
-                      func->SetParameter(3,10000);
-                      func->SetParameter(4,resp2->GetMean());
-                      func->SetParameter(5,15000);
-                      func->SetParameter(6,0.5*resp2->GetMean());//-0.5*resp2->GetMean());                                                                            
-                      func->SetParameter(7,0.5*resp2->GetRMS());
-
-		}
-		      else
-			{
 	      	      func->SetParameter(0,1000); // set starting values
 	      	      func-> SetParameter(1,resp2->GetMean()); // set starting values
 	      	      func->SetParameter(2,resp2->GetRMS());
@@ -1785,7 +1627,6 @@ void n20_fitting(string root_file_name,string map_file)
 	      	      func->SetParameter(6,resp2->GetMean());//-0.5*resp2->GetMean());
 	      	      //func->SetParameter(6,resp2->GetMean());
 	      	      func->SetParameter(7,resp2->GetRMS());
-			}
 	      	      func->SetParNames("Constant1","Mean_G","Sigma_G","Constant2","Mean_P","Constant3","Mean_L","Sigma_L");
 	      	      float r1 = resp2->GetMean()- 4*resp2->GetRMS();
 	      	      float r2 = resp2->GetMean()+4*resp2->GetRMS();
@@ -1845,29 +1686,16 @@ void n20_fitting(string root_file_name,string map_file)
 	      	      resp2->SetMarkerColor(kRed);
 	      	      resp2->SetLineWidth(2);
 	      	      TF1* func = new TF1("fit_func","([0]*TMath::Gaus(x,[1],[2])) + [3]*TMath::Poisson(x,[4])+[5]*TMath::Landau(x,[6],[7])");
-		      if(map_vec[iModule].layer==40 && map_vec[iModule].u == 2 && map_vec[iModule].v ==7)
-			{
-			  func->SetParameter(0,10);
-                      func-> SetParameter(1,0.05*resp2->GetMean());	
-                      func->SetParameter(2,resp2->GetRMS());
-                      func->SetParameter(3,10000);
-                      func->SetParameter(4,resp2->GetMean());
-                      func->SetParameter(5,40000);
-                      func->SetParameter(6,0.05*resp2->GetMean());
-                      func->SetParameter(7,0.5*resp2->GetRMS());
-
-			}
-		      else
-			{
-	      	      func->SetParameter(0,1000); 
-	      	      func-> SetParameter(1,resp2->GetMean()); 
+		      
+	      	      func->SetParameter(0,1000); // set starting values
+	      	      func-> SetParameter(1,resp2->GetMean()); // set starting values
 	      	      func->SetParameter(2,resp2->GetRMS());
 	      	      func->SetParameter(3,10000);
 	      	      func->SetParameter(4,resp2->GetMean());
 	      	      func->SetParameter(5,4000);
-	      	      func->SetParameter(6,resp2->GetMean());
+	      	      func->SetParameter(6,resp2->GetMean());//-0.5*resp2->GetMean());
+	      	      //func->SetParameter(6,resp2->GetMean());
 	      	      func->SetParameter(7,resp2->GetRMS());
-			}
 	      	      func->SetParNames("Constant1","Mean_G","Sigma_G","Constant2","Mean_P","Constant3","Mean_L","Sigma_L");
 	      	      float r1 = resp2->GetMean()- 4*resp2->GetRMS();
 	     	      float r2 = resp2->GetMean()+4*resp2->GetRMS();
@@ -1928,15 +1756,41 @@ void n20_fitting(string root_file_name,string map_file)
 	      	  resp2->SetLineWidth(2);
 		  
 	      	  TF1* func = new TF1("fit_func","([0]*TMath::Gaus(x,[1],[2])) + [3]*TMath::Poisson(x,[4])+[5]*TMath::Landau(x,[6],[7])");
+		  if(map_vec[iModule].layer == 45 && map_vec[iModule].u==7 && map_vec[iModule].v==3) //|| (map_vec[iModule].layer == 48 && map_vec[iModule].u==3 && map_vec[iModule].v==6))
+		    {
+		       func->SetParameter(0,10);
+                  func-> SetParameter(1,0.5*resp2->GetMean());
+                  func->SetParameter(2,0.01*resp2->GetRMS());
+                  func->SetParameter(3,600000);
+                  func->SetParameter(4,resp2->GetMean());
+                  func->SetParameter(5,15000);
+                  func->SetParameter(6,0.6*resp2->GetMean());
+                  func->SetParameter(7,0.01*resp2->GetRMS());
 
-	      	  func->SetParameter(0,1000); // set starting values
-	      	  func-> SetParameter(1,resp2->GetMean()); // set starting values
+		    }
+		  // else if (map_vec[iModule].layer == 48 && map_vec[iModule].u==3 && map_vec[iModule].v==6)
+		  //   {
+		  //     func->SetParameter(0,10);
+                  // func-> SetParameter(1,0.5*resp2->GetMean());
+                  // func->SetParameter(2,resp2->GetRMS());
+                  // func->SetParameter(3,6000);
+                  // func->SetParameter(4,resp2->GetMean());
+                  // func->SetParameter(5,15);
+                  // func->SetParameter(6,resp2->GetMean());
+                  // func->SetParameter(7,resp2->GetRMS());
+		  //   }
+
+		  else
+		    {
+	      	  func->SetParameter(0,1000); 
+	      	  func-> SetParameter(1,resp2->GetMean()); 
 	      	  func->SetParameter(2,resp2->GetRMS());
 	      	  func->SetParameter(3,6000);
 	      	  func->SetParameter(4,resp2->GetMean());
 	      	  func->SetParameter(5,1500);
 	      	  func->SetParameter(6,resp2->GetMean());
 	      	  func->SetParameter(7,resp2->GetRMS());
+		    }
 	      	  func->SetParNames("Constant1","Mean_G","Sigma_G","Constant2","Mean_P","Constant3","Mean_L","Sigma_L");
 	      	  //float r1 = resp2->GetMean()- 4*resp2->GetRMS();
 	      	  float r1 = resp2->GetMean()- 4*resp2->GetRMS();
@@ -1999,7 +1853,7 @@ void n20_fitting(string root_file_name,string map_file)
 		  resp2->SetLineWidth(2);
 
 		  TF1* func = new TF1("fit_func","([0]*TMath::Gaus(x,[1],[2])) + [3]*TMath::Poisson(x,[4])+[5]*TMath::Landau(x,[6],[7])");
-		  if(map_vec[iModule].layer==50 && ((map_vec[iModule].u == 3 && map_vec[iModule].v==7)||(map_vec[iModule].u == 6 && map_vec[iModule].v==1)))
+		  if(map_vec[iModule].layer==50 && ((map_vec[iModule].u == 3 && map_vec[iModule].v==7)||(map_vec[iModule].u == 6 && map_vec[iModule].v==1)))// || (map_vec[iModule].u == 6 && map_vec[iModule].v==5) ||(map_vec[iModule].u == 1 && map_vec[iModule].v==6) || (map_vec[iModule].u == 5 && map_vec[iModule].v==6)))
 		    {
 		       func->SetParameter(0,1000); // set starting values                                                                                                                                       
                   func-> SetParameter(1,resp2->GetMean()-1); // set starting values                                                                                                                          
@@ -2007,6 +1861,41 @@ void n20_fitting(string root_file_name,string map_file)
                   func->SetParameter(3,5000);
                   func->SetParameter(4,resp2->GetMean());
                   func->SetParameter(5,5050);
+                  func->SetParameter(6,resp2->GetMean());
+                  func->SetParameter(7,resp2->GetRMS());
+
+		    }
+		  else if ((map_vec[iModule].layer == 48 && map_vec[iModule].u==3 && map_vec[iModule].v==6) ||  (map_vec[iModule].layer == 48 && map_vec[iModule].u==4 && map_vec[iModule].v==7) || (map_vec[iModule].layer == 50 && map_vec[iModule].u==6 && map_vec[iModule].v==5) ||  (map_vec[iModule].layer == 50 && map_vec[iModule].u==5 && map_vec[iModule].v==6))
+                    {
+                      func->SetParameter(0,10);
+		      func-> SetParameter(1,0.5*resp2->GetMean());
+                  func->SetParameter(2,0.2*resp2->GetRMS());
+                  func->SetParameter(3,600000);
+                  func->SetParameter(4,resp2->GetMean());
+                  func->SetParameter(5,1500);
+                  func->SetParameter(6,0.5*resp2->GetMean());
+                  func->SetParameter(7,resp2->GetRMS());
+                    }
+		  else if ((map_vec[iModule].layer == 49 && map_vec[iModule].u==6 && map_vec[iModule].v==5))// || (map_vec[iModule].layer == 50 && map_vec[iModule].u==1 && map_vec[iModule].v==6))
+		    {
+		        func->SetParameter(0,1000); // set starting values                                                                                                  
+                  func-> SetParameter(1,resp2->GetMean()); // set starting values                                                                                     
+                  func->SetParameter(2,resp2->GetRMS());
+                  func->SetParameter(3,50000);
+                  func->SetParameter(4,resp2->GetMean());
+                  func->SetParameter(5,5050);
+                  func->SetParameter(6,resp2->GetMean());
+                  func->SetParameter(7,resp2->GetRMS());
+
+		    }
+		  else if (map_vec[iModule].layer == 50 && map_vec[iModule].u==1 && map_vec[iModule].v==6)
+		    {
+		      func->SetParameter(0,100); // set starting values                                                                                             
+                  func-> SetParameter(1,0.5*resp2->GetMean()); // set starting values                                                                                     
+                  func->SetParameter(2,0.2*resp2->GetRMS());
+                  func->SetParameter(3,50000);
+                  func->SetParameter(4,resp2->GetMean());
+                  func->SetParameter(5,50500);
                   func->SetParameter(6,resp2->GetMean());
                   func->SetParameter(7,resp2->GetRMS());
 
@@ -2032,7 +1921,7 @@ void n20_fitting(string root_file_name,string map_file)
 		    func->SetRange(0,r2);}
 		  else if(r1>0){
 		    func->SetRange(r1,r2);}
-		  resp2->Fit("fit_func","RME");
+		  resp2->Fit("fit_func","RLE");
 		  resp2->GetFunction("fit_func")->SetLineColor(kBlack);
 		  TF1* f3 = resp2->GetFunction("fit_func");
 		  TF1 *f_l =  (TF1*)f3->Clone("f3");
@@ -2065,10 +1954,11 @@ void n20_fitting(string root_file_name,string map_file)
 		
     
 	    }
+	   //	}
 	      
-	   //	 }
+    }
 	   
-    }	    
+	    
   f->Close();
   file.close();
 	

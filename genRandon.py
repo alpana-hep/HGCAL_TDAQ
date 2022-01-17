@@ -14,60 +14,59 @@ from numpy.random import seed
 from numpy.random import randn
 from rootpy.tree import Tree, TreeModel, FloatCol, IntCol, ULongCol
 from rootpy import stl
-min_ = int(sys.argv[1])
-seed_=int(sys.argv[2])
+min_ = int(sys.argv[2])
+seed_=int(sys.argv[1])
 out_fname=sys.argv[3]
 
 fout = ROOT.TFile(out_fname, 'RECREATE')
 
 tree = ROOT.TTree('tree', 'tree')
 
-layer_M=[]
-u_M=[]
-v_M=[]
-typee_M=[]
+layer=[]
+u=[]
+v=[]
+typee=[]
 nCells=[]
 nHalfHgcrocs=[]
 nMaxWords=[]
 nMinWords=[]
-f = open("./module_info_updated_01032021.txt", "r")
- 
-for line in f:
-    newline= line.replace("\t"," ")
-
-    data=newline.split(" ")
- 
-    layer_M.append(int(data[1]))
-    u_M.append(int(data[3]))
-    v_M.append(int(data[4]))
-    typee_M.append(int(data[2]))
-    nCells.append(int(data[5]))
-    nHalfHgcrocs.append(int(data[6]))
-    nMaxWords.append(int(data[7]))
-    nMinWords.append(int(data[8]))
+data = np.loadtxt("./module_info_updated_01032021.txt")
+for im in range(4851):
+    layer.append(int(data[im][1]))
+    u.append(int(data[im][3]))
+    v.append(int(data[im][4]))
+    typee.append(int(data[im][2]))
+    nCells.append(int(data[im][5]))
+    nHalfHgcrocs.append(int(data[im][6]))
+    nMaxWords.append(int(data[im][7]))
 
 random_number=[]
 random_list=[]
 n = 1000000
-for im in range(5066):
-     seed(im*seed_+im)
-     random_number=randn(n)
-     name='%i_%i_%i_%i' %(layer_M[im],typee_M[im],u_M[im],v_M[im])
+seed_1 = seed_
+seeed = seed_1/n
+#seeed = int(seed%n)
+for im in range(4851):
+    #seed(im+seeed)
+    random_number=randn(n)
+    #name='%i_%i_%i_%i' %(layer_M[im],typee_M[im],u_M[im],v_M[im])
+    #if(im<5066):
+    name='%i_%i_%i_%i' %(layer[im],typee[im],u[im],v[im])
+    nhitss_10= np.array(random_number,dtype=[('n10_Module_%s' %name, np.float32)])
+    array2tree(nhitss_10,tree=tree)
+    
+    #seed((im+1)+seeed)
+    random_number=randn(n)
+    
+    nhitss_20= np.array(random_number,dtype=[('n20_Module_%s' %name, np.float32)])
+    array2tree(nhitss_20,tree=tree)
+    #seed((im+2)+seeed)
+    nhitss_30= np.array(random_number,dtype=[('n30_Module_%s' %name, np.float32)])
+    array2tree(nhitss_30,tree=tree)
 
-     nhitss= np.array(random_number,dtype=[('Module_%s' %name, np.float32)])
-
-     array2tree(nhitss,tree=tree)
+    #array2tree(nhitss,tree=tree)
 
 
 fout.cd()
 tree.Write()
 fout.Close()
-
-     #print(random_number)
-     #random_list.append(random_number)
-# print('mean',np.mean(random_list[1]))
-# print('std',np.std(random_list[1]))
-
-#print(len(random_number))                                                                                                      
-#print(len(random_list))                                                                                                        
-#random_list_np= np.array(random_list) 

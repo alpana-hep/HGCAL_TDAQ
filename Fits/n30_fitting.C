@@ -27,12 +27,12 @@ void n30_fitting(string root_file_name,string map_file)
   char* new_release = new char[50];
   char* hist = new char[200];
   
-  TFile* f = new TFile("data_per_elink_nt_EOL_correct.root","Recreate");
-  TH1F* data_per_elink = new TH1F("data_per_elink","average econ data per elink",5066,0,5066);
-  TH1F* Transformed_data_per_elink = new TH1F("Transformed_data_per_elink",";;transformed / original",5066,0,5066);
-  TH1F* ratio_plot = new TH1F("ratio_plot","Pessimistics",5066,0,5066);
-  ratio_plot->GetXaxis()->SetTitle("Econ-d's");
-  ratio_plot->GetYaxis()->SetTitle("transformed/original");
+  // TFile* f = new TFile("data_per_elink_nt_EOL_correct.root","Recreate");
+  // TH1F* data_per_elink = new TH1F("data_per_elink","average econ data per elink",5066,0,5066);
+  // TH1F* Transformed_data_per_elink = new TH1F("Transformed_data_per_elink",";;transformed / original",5066,0,5066);
+  // TH1F* ratio_plot = new TH1F("ratio_plot","Pessimistics",5066,0,5066);
+  // ratio_plot->GetXaxis()->SetTitle("Econ-d's");
+  // ratio_plot->GetYaxis()->SetTitle("transformed/original");
   
   char* hname = new char[2000];
   char* hname1 = new char[2000];
